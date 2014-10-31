@@ -5,11 +5,13 @@ function = EAC2()
 	%PUNTO a) jugadores=5, repeticiones_experimento =1,  optimista = false ;  % Declaro que tipo de sistema que uso para jugar a la ruleta (“optimista” o “pesimista” )
 
 	
-	[v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_finales_exitosos_por_experimento]= simulacion(5, 1, false);
+	[v_jugador_capital_pesimista, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_finales_exitosos_por_experimento]= simulacion(5, 1, false);
+
+	[v_jugador_capital_optimista, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_finales_exitosos_por_experimento]= simulacion(5, 1, true);
 
 	% Imprimirá un plot para cada jugador del capital en función de las jugadas. 
 		for i=1:1:5
-			plot(v_jugador_capital);
+			plot(v_jugador_capital[i]);
 		end
 
 	
@@ -19,7 +21,7 @@ function = EAC2()
 
 	[v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_finales_exitosos_por_experimento]= simulacion(100, 1, false);	
 
-	frecuencia_final_exitoso = v_finales_exitosos_por_experimento[1]/100;
+	frecuencia_final_exitoso = v_finales_exitosos_por_experimento[1];
 	promedio_jugadas = sum(v_jugadas)/100;
 	promedio_jugadas_alcanza_B = jugadas_ganadas/100;
 	promedio_jugadas_pierde = jugadas_perdidas/100;
@@ -65,7 +67,7 @@ function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_fin
 	v_capital = [];
 	v_finales_exitosos_por_experimento = [];
 
-	for i=1:1:repeticiones_experimento		
+	for repeticion=1:1:repeticiones_experimento		
 
 			%Función Principal
 
@@ -77,6 +79,7 @@ function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_fin
 					%Se gana jugada
 					if r==p
 						ganancia = ganancia + apuesta ;
+						capital = capital + ganancia;
 						
 						if optimista == true
 							regla_de_ajuste = regla_de_ajuste+1;
@@ -105,7 +108,7 @@ function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_fin
 						apuesta = a;
 					end
 
-					capital = capital + ganancia;
+					
 					v_capital[jugadas]= capital;
 					jugadas = jugadas +1;
 
@@ -114,20 +117,20 @@ function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_fin
 
 			 	if capital < 0
 			 	
-					perdio_juego = perdio_juego +1;
-					jugadas_perdidas = jugadas_perdidas +1;
+					jugadas_perdidas = jugadas_perdidas +jugadas;
 
-				else ganancia >= B
+				else 
 				
 					gano_juego=gano_juego+1;
-					jugadas_ganadas=jugadas_ganadas +1;
+					jugadas_ganadas=jugadas_ganadas +jugadas;
 
 				end
 				
-				v_jugadas[jugador] = jugadas;
-
 				%Nos piden plotear en el punto a), el capital vs jugadas de CADA jugador. Es necesario resetear la variable jugadas para cada jugador, 
 				%por ésto al finaliza el juego las almacenamos en un vector.
+				
+				v_jugadas[jugador] = jugadas;
+
 				v_jugador_capital[jugador] = v_capital; 
 				
 				%Se resetean los valores
@@ -138,8 +141,8 @@ function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_fin
 
 
 			end
-
-			v_finales_exitosos_por_experimento[i] = gano_juego;
+			%Guardamos una entrada de la frecuencia de juegos exitosos por cada repeticion del experimento.
+			v_finales_exitosos_por_experimento[repeticion] = gano_juego/jugadores;
 	end
 
 
