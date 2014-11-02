@@ -19,10 +19,14 @@ function [] = tp2()
                         
             x_pesimista = [1:jugadas_pesimista];
             x_optimista = [1:jugadas_optimista];
-            
+          
             plot(x_pesimista, v_jugador_pesimista, x_optimista, v_jugador_optimista);
+            grid on
+            title('Capital --->>  Optimista Vs Pesimista')
+          
             xlabel('Numero de jugadas');
             ylabel('Capital');
+            
         end
         
         
@@ -71,7 +75,7 @@ function [] = tp2()
 
 	[v_jugador_capital_optimista, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_finales_exitosos_por_experimento]= simulacion(100, 200, true);
 
-	%hist(v_finales_exitosos_por_experimento);
+	hist(v_finales_exitosos_por_experimento);
 
 end
 
@@ -86,115 +90,112 @@ end
 
 function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_finales_exitosos_por_experimento]= simulacion(jugadores, repeticiones_experimento, optimista)
 
-	
-	
+	v_finales_exitosos_por_experimento = zeros(1, repeticiones_experimento);  
 
-	%Declaración de variables 
+    for repeticion=1:1:repeticiones_experimento		
 
-	a=10;
-	b=100;
-	C=200;
-	B=40;
-	jugadas = 1;
-    
-    capital=C;
+        %Declaración de variables 
 
-	apuesta = a;
+        a=10;
+        b=100;
+        C=200;
+        B=400;
+        jugadas = 1;
 
-	ganancia = 0;
-   
-	p=18/37;
-    regla_de_ajuste = 0;
-	gano_juego=0;
-	jugadas_ganadas = 0;
-	jugadas_perdidas = 0;
+        capital=C;
 
-	v_jugador_capital = zeros(jugadores, 30000);
-	v_jugadas = zeros(1, jugadores);
-	v_capital = zeros(1, 30000);
-	v_finales_exitosos_por_experimento = zeros(1, repeticiones_experimento);
+        apuesta = a;
 
-	for repeticion=1:1:repeticiones_experimento		
+        ganancia = 0;
 
-			%Función Principal
+        regla_de_ajuste = 0;
+        gano_juego=0;
+        jugadas_ganadas = 0;
+        jugadas_perdidas = 0;
 
-			for jugador=1:1:jugadores  %cantidad de personas que juegan
+        v_jugador_capital = zeros(jugadores, 1000);
+        v_jugadas = zeros(1, jugadores);
+        v_capital = zeros(1, 1000);
 
-				while (capital >0) && (ganancia < B)
+        for jugador=1:1:jugadores  %cantidad de personas que juegan
 
-					r=rand;
-					%Se gana jugada
-					if r<0.5
-						ganancia = ganancia + apuesta ;
-                        if(ganancia>B)
-                            ganancia = B;
-                        end
-						capital = capital + ganancia;
-						
-						if optimista == true
-							regla_de_ajuste = regla_de_ajuste+1;
-							apuesta = 2*apuesta;
-						else
-							apuesta = a;
-						end
-						
-					else
-				
-						capital = capital - apuesta;
-						
-						if optimista == (true)
-							apuesta = a;	
-						else
-							apuesta = 2*apuesta ;
-						end 
-										
-					end
-					
-					if apuesta > b
-							apuesta = b;
-					end
+            while (capital >0) && (ganancia < B)
 
-					if optimista == true && regla_de_ajuste==3
-						apuesta = a;
-                        regla_de_ajuste = 0;
-					end
+                r=rand;
+                %Se gana jugada
+                if r<0.5
+                    ganancia = ganancia + apuesta ;
+                    %Para que no se vaya del juego habiendo obtenido una ganancia mayor a la que impone el limite B.
+                    if(ganancia>B)
+                        ganancia = B;
+                    end
+                    capital = capital + apuesta;
 
-					
-					v_capital(jugadas)= capital;
-					jugadas = jugadas +1;
+                    if optimista == true
+                        regla_de_ajuste = regla_de_ajuste+1;
+                        apuesta = 2*apuesta;
+                    else
+                        apuesta = a;
+                    end
 
-					
-				end %Termina jugada
+                else
 
-			 	if capital < 0
-			 	
-					jugadas_perdidas = jugadas_perdidas +jugadas;
+                    capital = capital - apuesta;
 
-				else 
-				
-					gano_juego=gano_juego+1;
-					jugadas_ganadas=jugadas_ganadas +jugadas;
+                    if optimista == (true)
+                        apuesta = a;	
+                    else
+                        apuesta = 2*apuesta ;
+                    end 
 
-				end
-				
-				%Nos piden plotear en el punto a), el capital vs jugadas de CADA jugador. Es necesario resetear la variable jugadas para cada jugador, 
-				%por ésto al finaliza el juego las almacenamos en un vector.
-				
-				v_jugadas(jugador) = jugadas-1;
+                end
 
-				v_jugador_capital(jugador,:) = v_capital; 
-				
-				%Se resetean los valores
-				apuesta = a;
-				capital = C;
-				jugadas = 1;
-                ganancia = 0;
-				v_capital = zeros(1, 30000);
+                if apuesta > b
+                        apuesta = b;
+                end
+
+                if optimista == true && regla_de_ajuste==3
+                    apuesta = a;
+                    regla_de_ajuste = 0;
+                end
 
 
-			end
-			%Guardamos una entrada de la frecuencia de juegos exitosos por cada repeticion del experimento.
-			v_finales_exitosos_por_experimento(repeticion) = gano_juego/jugadores;
+                v_capital(jugadas)= capital;
+                jugadas = jugadas +1;
+
+
+            end %Termina jugada
+
+            if capital < 0
+
+                jugadas_perdidas = jugadas_perdidas +jugadas;
+
+            else 
+
+                gano_juego=gano_juego+1;
+                jugadas_ganadas=jugadas_ganadas +jugadas;
+
+            end
+
+            %Nos piden plotear en el punto a), el capital vs jugadas de CADA jugador. Es necesario resetear la variable jugadas para cada jugador, 
+            %por ésto al finaliza el juego las almacenamos en un vector.
+
+            v_jugadas(jugador) = jugadas-1;
+
+            v_jugador_capital(jugador,:) = v_capital; 
+
+            %Se resetean los valores
+            apuesta = a;
+            capital = C;
+            jugadas = 1;
+            ganancia = 0;
+            v_capital = zeros(1, 1000);
+
+
+        end
+        %Guardamos una entrada de la frecuencia de juegos exitosos por cada repeticion del experimento.
+        v_finales_exitosos_por_experimento(repeticion) = gano_juego/jugadores;
+                    
 	end
 
 
