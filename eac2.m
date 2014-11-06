@@ -1,4 +1,4 @@
-function [] = tp2()
+function [] = eac2()
 
 %%%%%%%%%%%%%%
 
@@ -90,47 +90,48 @@ end
 
 function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_finales_exitosos_por_experimento]= simulacion(jugadores, repeticiones_experimento, optimista)
 
-	v_finales_exitosos_por_experimento = zeros(1, repeticiones_experimento);  
-
+	
+    %Constantes
+    a=10;
+    b=100;
+    C=200;
+    B=400;
+    
+    v_finales_exitosos_por_experimento = zeros(1, repeticiones_experimento);  
+    
+    
     for repeticion=1:1:repeticiones_experimento		
 
-        %Declaración de variables 
-
-        a=10;
-        b=100;
-        C=200;
-        B=400;
-        jugadas = 1;
-
-        capital=C;
-
-        apuesta = a;
-
-        ganancia = 0;
-
-        regla_de_ajuste = 0;
+        %Variables globales para jugadores
         gano_juego=0;
         jugadas_ganadas = 0;
         jugadas_perdidas = 0;
-
-        v_jugador_capital = zeros(jugadores, 1000);
+        v_jugador_capital = zeros(jugadores, 3000);
         v_jugadas = zeros(1, jugadores);
-        v_capital = zeros(1, 1000);
+        
 
         for jugador=1:1:jugadores  %cantidad de personas que juegan
+            
+            perdida = 0;
+            jugadas = 1;
+            capital = C;
+            apuesta = a;
+            regla_de_ajuste = 0;
+            v_capital = zeros(1, 3000);
 
-            while (capital >0) && (ganancia < B)
-
+            while (perdida < C) && (capital < B)
+    
                 r=rand;
-                %Se gana jugada
+                
                 if r<0.5
-                    ganancia = ganancia + apuesta ;
-                    %Para que no se vaya del juego habiendo obtenido una ganancia mayor a la que impone el limite B.
-                    if(ganancia>B)
-                        ganancia = B;
+                %Se gana jugada (apuesta)
+                
+                    capital = capital + apuesta ;
+                    %Para que no se vaya del juego con un capital mayor al que impone el limite B.
+                    if(capital>B)
+                        capital = B;
                     end
-                    capital = capital + apuesta;
-
+                    
                     if optimista == true
                         regla_de_ajuste = regla_de_ajuste+1;
                         apuesta = 2*apuesta;
@@ -139,9 +140,11 @@ function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_fin
                     end
 
                 else
-
+                %Se pierde jugada (apuesta)
+                    regla_de_ajuste=0; %Se "corto la racha ganadora"
+                    perdida = perdida + apuesta;
                     capital = capital - apuesta;
-
+                    
                     if optimista == (true)
                         apuesta = a;	
                     else
@@ -149,16 +152,17 @@ function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_fin
                     end 
 
                 end
-
+                
+                %Se controla que la apuesta no supere el maximo estipulado
+                %por la cantidad b.
                 if apuesta > b
                         apuesta = b;
                 end
-
+                
                 if optimista == true && regla_de_ajuste==3
-                    apuesta = a;
-                    regla_de_ajuste = 0;
+                        apuesta = a;
+                        regla_de_ajuste = 0;
                 end
-
 
                 v_capital(jugadas)= capital;
                 jugadas = jugadas +1;
@@ -166,7 +170,7 @@ function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_fin
 
             end %Termina jugada
 
-            if capital < 0
+            if perdida > C
 
                 jugadas_perdidas = jugadas_perdidas +jugadas;
 
@@ -183,14 +187,6 @@ function [v_jugador_capital, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_fin
             v_jugadas(jugador) = jugadas-1;
 
             v_jugador_capital(jugador,:) = v_capital; 
-
-            %Se resetean los valores
-            apuesta = a;
-            capital = C;
-            jugadas = 1;
-            ganancia = 0;
-            v_capital = zeros(1, 1000);
-
 
         end
         %Guardamos una entrada de la frecuencia de juegos exitosos por cada repeticion del experimento.
