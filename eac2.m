@@ -21,6 +21,7 @@ function [] = eac2()
             x_optimista = [1:jugadas_optimista];
           
             plot(x_pesimista, v_jugador_pesimista, x_optimista, v_jugador_optimista);
+            legend('Pesimista','Optimista');
             grid on
             title('Capital --->>  Optimista Vs Pesimista')
           
@@ -70,12 +71,14 @@ function [] = eac2()
 
 	[v_jugador_capital_pesimista, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_finales_exitosos_por_experimento]= simulacion(100, 200, false);
 	hist(v_finales_exitosos_por_experimento);
+    legend('Pesimista');
 	
 	%%Corrida optimista
 
 	[v_jugador_capital_optimista, v_jugadas, jugadas_ganadas, jugadas_perdidas, v_finales_exitosos_por_experimento]= simulacion(100, 200, true);
 
 	hist(v_finales_exitosos_por_experimento);
+    legend('Optimista');
 
 end
 
